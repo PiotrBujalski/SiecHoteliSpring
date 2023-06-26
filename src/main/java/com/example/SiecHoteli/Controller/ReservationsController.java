@@ -47,7 +47,7 @@ public class ReservationsController {
 
         var reserv = Reservations.builder()
                 .hotel(reservation.getHotel())
-                .roomID(reservation.getRoomID())
+                .room(reservation.getRoom())
                 .userID(reservation.getUserID())
                 .startDate(reservation.getStartDate())
                 .endDate(reservation.getEndDate())
@@ -77,8 +77,8 @@ public class ReservationsController {
             if (request.getHotel() != null) {
                 reserv.setHotel(request.getHotel());
             }
-            if (request.getRoomID() != null) {
-                reserv.setRoomID(request.getRoomID());
+            if (request.getRoom() != null) {
+                reserv.setRoom(request.getRoom());
             }
             if (request.getUserID() != null) {
                 reserv.setUserID(request.getUserID());

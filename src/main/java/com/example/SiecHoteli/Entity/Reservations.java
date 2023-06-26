@@ -21,8 +21,9 @@ public class Reservations {
     @JoinColumn(name = "hotelID", referencedColumnName = "hotelID", nullable = false)
     private Hotel hotel;
 
-    @Column(name = "roomID", nullable = false)
-    private Integer roomID;
+    @ManyToOne
+    @JoinColumn(name = "roomID", referencedColumnName = "roomID", nullable = false)
+    private Room room;
 
     @Column(name = "userID", nullable = false)
     private Integer userID;
@@ -33,10 +34,10 @@ public class Reservations {
     @Column(name = "endDate", nullable = false)
     private Date endDate;
 
-    public Reservations(int reservationID, Hotel hotel, Integer roomID, Integer userID, Date startDate, Date endDate) {
+    public Reservations(int reservationID, Hotel hotel, Room room, Integer userID, Date startDate, Date endDate) {
         this.reservationID = reservationID;
         this.hotel = hotel;
-        this.roomID = roomID;
+        this.room = room;
         this.userID = userID;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -61,12 +62,12 @@ public class Reservations {
         this.hotel = hotel;
     }
 
-    public Integer getRoomID() {
-        return roomID;
+    public Room getRoom() {
+        return room;
     }
 
-    public void setRoomID(Integer roomID) {
-        this.roomID = roomID;
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     public Integer getUserID() {
