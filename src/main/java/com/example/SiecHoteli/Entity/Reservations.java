@@ -1,9 +1,13 @@
 package com.example.SiecHoteli.Entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.Date;
 
+@Data
+@Builder
 @Entity
 @Table(name = "Reservations")
 public class Reservations {
@@ -13,14 +17,15 @@ public class Reservations {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int reservationID;
 
-    @Column(name = "hotelID", nullable = false)
-    private int hotelID;
+    @ManyToOne
+    @JoinColumn(name = "hotelID", referencedColumnName = "hotelID", nullable = false)
+    private Hotel hotel;
 
     @Column(name = "roomID", nullable = false)
-    private int roomID;
+    private Integer roomID;
 
     @Column(name = "userID", nullable = false)
-    private int userID;
+    private Integer userID;
 
     @Column(name = "startDate", nullable = false)
     private Date startDate;
@@ -28,9 +33,9 @@ public class Reservations {
     @Column(name = "endDate", nullable = false)
     private Date endDate;
 
-    public Reservations(int reservationID, int hotelID, int roomID, int userID, Date startDate, Date endDate) {
+    public Reservations(int reservationID, Hotel hotel, int roomID, int userID, Date startDate, Date endDate) {
         this.reservationID = reservationID;
-        this.hotelID = hotelID;
+        this.hotel = hotel;
         this.roomID = roomID;
         this.userID = userID;
         this.startDate = startDate;
@@ -48,12 +53,12 @@ public class Reservations {
         this.reservationID = reservationID;
     }
 
-    public int getHotelID() {
-        return hotelID;
+    public Hotel getHotel() {
+        return hotel;
     }
 
-    public void setHotelID(int hotelID) {
-        this.hotelID = hotelID;
+    public void setHotel(Hotel hotel) {
+        this.hotel = hotel;
     }
 
     public int getRoomID() {

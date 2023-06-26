@@ -1,6 +1,13 @@
 package com.example.SiecHoteli.Entity;
-import jakarta.persistence.*;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
 @Entity
 @Table(name = "Hotel")
 public class Hotel {
