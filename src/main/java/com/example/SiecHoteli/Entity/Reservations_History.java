@@ -9,12 +9,11 @@ import java.util.Date;
 @Data
 @Builder
 @Entity
-@Table(name = "Reservations")
-public class Reservations {
+@Table(name = "Reservations_History")
+public class Reservations_History {
 
     @Id
     @Column(name = "reservationID")
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private int reservationID;
 
     @ManyToOne
@@ -33,7 +32,7 @@ public class Reservations {
     @Column(name = "endDate", nullable = false)
     private Date endDate;
 
-    public Reservations(int reservationID, Hotel hotel, Integer roomID, Integer userID, Date startDate, Date endDate) {
+    public Reservations_History(int reservationID, Hotel hotel, Integer roomID, Integer userID, Date startDate, Date endDate) {
         this.reservationID = reservationID;
         this.hotel = hotel;
         this.roomID = roomID;
@@ -42,7 +41,7 @@ public class Reservations {
         this.endDate = endDate;
     }
 
-    public Reservations() {
+    public Reservations_History() {
     }
 
     public int getReservationID() {
@@ -93,3 +92,4 @@ public class Reservations {
         this.endDate = endDate;
     }
 }
+

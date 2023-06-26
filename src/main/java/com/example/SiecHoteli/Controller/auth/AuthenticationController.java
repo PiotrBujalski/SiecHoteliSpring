@@ -38,7 +38,7 @@ public class AuthenticationController {
         var user = User.builder()
                 .login(request.getLogin())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .role(Role.ADMIN)
                 .build();
 
         repository.save(user);

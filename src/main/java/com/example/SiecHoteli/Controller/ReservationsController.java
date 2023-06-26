@@ -22,7 +22,7 @@ public class ReservationsController {
         this.reservRepository = reservRepository;
     }
 
-    @GetMapping("")
+    @GetMapping("/getAll")
     public List<Reservations> getAllReservations() {
         return reservRepository.findAll();
     }
@@ -48,6 +48,7 @@ public class ReservationsController {
         var reserv = Reservations.builder()
                 .hotel(reservation.getHotel())
                 .roomID(reservation.getRoomID())
+                .userID(reservation.getUserID())
                 .startDate(reservation.getStartDate())
                 .endDate(reservation.getEndDate())
                 .build();
@@ -79,6 +80,9 @@ public class ReservationsController {
             if (request.getRoomID() != null) {
                 reserv.setRoomID(request.getRoomID());
             }
+            if (request.getUserID() != null) {
+                reserv.setUserID(request.getUserID());
+            }
 
             Date today = new Date();
             Date startDate = reserv.getStartDate();
@@ -105,5 +109,11 @@ public class ReservationsController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @DeleteMapping("/deleteExpired")
+    public ResponseEntity<String> deleteExpiredReservations() {
+        reservRepository.deleteExpiredReservations();
+        return ResponseEntity.ok("Expired reservations deleted successfully");
     }
 }

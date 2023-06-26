@@ -14,7 +14,6 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReservationsRequest {
-    private int reservationID;
     private Hotel hotel;
     private Integer roomID;
     private Integer userID;
