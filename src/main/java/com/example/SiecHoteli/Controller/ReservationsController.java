@@ -1,13 +1,13 @@
 package com.example.SiecHoteli.Controller;
 
-import com.example.SiecHoteli.Entity.Hotel;
 import com.example.SiecHoteli.Entity.Reservations;
 import com.example.SiecHoteli.Repo.ReservRepository;
+import com.example.SiecHoteli.Repo.RoomRepository;
+import com.example.SiecHoteli.Repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +16,14 @@ import java.util.Optional;
 @RequestMapping("/api/v1/reserv")
 public class ReservationsController {
     private final ReservRepository reservRepository;
+    private final UserRepository userRepository;
+    private final RoomRepository roomRepository;
 
     @Autowired
-    public ReservationsController(ReservRepository reservRepository) {
+    public ReservationsController(ReservRepository reservRepository, UserRepository userRepository, RoomRepository roomRepository) {
         this.reservRepository = reservRepository;
+        this.userRepository = userRepository;
+        this.roomRepository = roomRepository;
     }
 
     @GetMapping("/getAll")
@@ -42,8 +46,16 @@ public class ReservationsController {
             return ResponseEntity.badRequest().body("Start date cannot be before today");
         }
 
+        boolean is_free = roomRepository.getAvailabilityByRoomID(reservation.getRoom().getRoomID());
+        if(!is_free){
+            return ResponseEntity.badRequest().body("This room is occupied");
+        }
 
-        /// sprawdzic czy pokoj jest wolny
+        boolean is_user = userRepository.existsById(reservation.getUserID());
+        if(!is_user){
+            return ResponseEntity.badRequest().body("User is not in database");
+        }
+
 
         var reserv = Reservations.builder()
                 .hotel(reservation.getHotel())
@@ -78,9 +90,19 @@ public class ReservationsController {
                 reserv.setHotel(request.getHotel());
             }
             if (request.getRoom() != null) {
+                boolean is_free = roomRepository.getAvailabilityByRoomID(request.getRoom().getRoomID());
+                if(!is_free){
+                    return ResponseEntity.badRequest().body("This room is occupied");
+                }
+
                 reserv.setRoom(request.getRoom());
             }
             if (request.getUserID() != null) {
+                boolean is_user = userRepository.existsById(request.getUserID());
+                if(!is_user){
+                    return ResponseEntity.badRequest().body("User is not in database");
+                }
+
                 reserv.setUserID(request.getUserID());
             }
 

@@ -13,7 +13,6 @@ import java.util.Optional;
 public class RoomController {
     private final RoomRepository roomRepository;
 
-
     public RoomController(RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
     }

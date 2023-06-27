@@ -2,7 +2,7 @@ package com.example.SiecHoteli.Controller;
 
 import com.example.SiecHoteli.Entity.Hotel;
 import com.example.SiecHoteli.Entity.Room;
-import jakarta.persistence.*;
+import com.example.SiecHoteli.Entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

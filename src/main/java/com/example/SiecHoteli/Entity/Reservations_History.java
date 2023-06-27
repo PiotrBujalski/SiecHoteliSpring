@@ -14,17 +14,20 @@ public class Reservations_History {
 
     @Id
     @Column(name = "reservationID")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int reservationID;
 
     @ManyToOne
     @JoinColumn(name = "hotelID", referencedColumnName = "hotelID", nullable = false)
     private Hotel hotel;
 
-    @Column(name = "roomID", nullable = false)
-    private Integer roomID;
+    @ManyToOne
+    @JoinColumn(name = "roomID", referencedColumnName = "roomID", nullable = false)
+    private Room room;
 
-    @Column(name = "userID", nullable = false)
-    private Integer userID;
+    @ManyToOne
+    @JoinColumn(name = "userID", referencedColumnName = "id", nullable = false)
+    private User userID;
 
     @Column(name = "startDate", nullable = false)
     private Date startDate;
@@ -32,10 +35,10 @@ public class Reservations_History {
     @Column(name = "endDate", nullable = false)
     private Date endDate;
 
-    public Reservations_History(int reservationID, Hotel hotel, Integer roomID, Integer userID, Date startDate, Date endDate) {
+    public Reservations_History(int reservationID, Hotel hotel, Room room, User userID, Date startDate, Date endDate) {
         this.reservationID = reservationID;
         this.hotel = hotel;
-        this.roomID = roomID;
+        this.room = room;
         this.userID = userID;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -60,19 +63,19 @@ public class Reservations_History {
         this.hotel = hotel;
     }
 
-    public Integer getRoomID() {
-        return roomID;
+    public Room getRoom() {
+        return room;
     }
 
-    public void setRoomID(Integer roomID) {
-        this.roomID = roomID;
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
-    public Integer getUserID() {
+    public User getUserID() {
         return userID;
     }
 
-    public void setUserID(Integer userID) {
+    public void setUserID(User userID) {
         this.userID = userID;
     }
 
