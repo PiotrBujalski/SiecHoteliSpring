@@ -25,9 +25,8 @@ public class Reservations_History {
     @JoinColumn(name = "roomID", referencedColumnName = "roomID", nullable = false)
     private Room room;
 
-    @ManyToOne
-    @JoinColumn(name = "userID", referencedColumnName = "id", nullable = false)
-    private User userID;
+    @Column(name = "userID", nullable = false)
+    private Integer userID;
 
     @Column(name = "startDate", nullable = false)
     private Date startDate;
@@ -35,7 +34,7 @@ public class Reservations_History {
     @Column(name = "endDate", nullable = false)
     private Date endDate;
 
-    public Reservations_History(int reservationID, Hotel hotel, Room room, User userID, Date startDate, Date endDate) {
+    public Reservations_History(int reservationID, Hotel hotel, Room room, Integer userID, Date startDate, Date endDate) {
         this.reservationID = reservationID;
         this.hotel = hotel;
         this.room = room;
@@ -71,11 +70,11 @@ public class Reservations_History {
         this.room = room;
     }
 
-    public User getUserID() {
+    public Integer getUserID() {
         return userID;
     }
 
-    public void setUserID(User userID) {
+    public void setUserID(Integer userID) {
         this.userID = userID;
     }
 

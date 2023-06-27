@@ -50,13 +50,13 @@ public class ReservationsController {
         if(!is_free){
             return ResponseEntity.badRequest().body("This room is occupied");
         }
-
+    
         boolean is_user = userRepository.existsById(reservation.getUserID());
         if(!is_user){
             return ResponseEntity.badRequest().body("User is not in database");
         }
-
-
+    
+        roomRepository.setAvailabilityByRoomID(reservation.getRoom().getRoomID(),false);
         var reserv = Reservations.builder()
                 .hotel(reservation.getHotel())
                 .room(reservation.getRoom())
@@ -70,7 +70,7 @@ public class ReservationsController {
     }
 
     @DeleteMapping("/delete/{reservID}")
-    public ResponseEntity<String> deleteHotel(@PathVariable Integer reservID) {
+    public ResponseEntity<String> deleteReserv(@PathVariable Integer reservID) {
         if (reservRepository.existsById(reservID)) {
             reservRepository.deleteById(reservID);
             return ResponseEntity.ok("Hotel deleted successfully");
@@ -80,7 +80,7 @@ public class ReservationsController {
     }
 
     @PutMapping("/update/{reservID}")
-    public ResponseEntity<String> updateHotel(@PathVariable("reservID") Integer reservID,
+    public ResponseEntity<String> updateReserv(@PathVariable("reservID") Integer reservID,
                                               @RequestBody ReservationsRequest request) {
 
         Optional<Reservations> optional = reservRepository.findById(reservID);
