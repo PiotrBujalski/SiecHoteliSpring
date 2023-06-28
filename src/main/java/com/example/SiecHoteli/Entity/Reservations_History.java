@@ -13,7 +13,7 @@ import java.util.Date;
 public class Reservations_History {
 
     @Id
-    @Column(name = "reservationID")
+    @Column(name = "")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int reservationID;
 

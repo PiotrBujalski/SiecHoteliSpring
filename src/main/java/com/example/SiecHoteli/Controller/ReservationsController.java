@@ -1,13 +1,22 @@
 package com.example.SiecHoteli.Controller;
 
 import com.example.SiecHoteli.Entity.Reservations;
+import com.example.SiecHoteli.Entity.Role;
+import com.example.SiecHoteli.Entity.Room;
+import com.example.SiecHoteli.Entity.User;
 import com.example.SiecHoteli.Repo.ReservRepository;
 import com.example.SiecHoteli.Repo.RoomRepository;
 import com.example.SiecHoteli.Repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -26,14 +35,60 @@ public class ReservationsController {
         this.roomRepository = roomRepository;
     }
 
-    @GetMapping("/getAll")
-    public List<Reservations> getAllReservations() {
-        return reservRepository.findAll();
+    @GetMapping("/getFree")
+    public ResponseEntity<?> getAvailableRooms(@RequestParam("startdate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+                                               @RequestParam("enddate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+        List<Room> availableRooms = roomRepository.findAvailableRooms(startDate, endDate);
+        return ResponseEntity.ok(availableRooms);
     }
 
 
+    @GetMapping("/getAll")
+    public ResponseEntity<?> getAllReservations(Authentication authentication) {
+        if (authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(role -> role.getAuthority().equals(Role.ADMIN.name()))) {
+            // Admin role
+            List<Reservations> allReservations = reservRepository.findAll();
+            return ResponseEntity.ok(allReservations);
+        } else if (authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(role -> role.getAuthority().equals(Role.USER.name()))) {
+            // User role
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User user = userRepository.findByLogin(userDetails.getUsername());
+            if (user != null) {
+                Integer userId = user.getId();
+                List<Reservations> userReservations = reservRepository.findAllByUserID(userId);
+                return ResponseEntity.ok(userReservations);
+            } else {
+                return ResponseEntity.badRequest().body("User not found");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+    }
+
+
+
     @PostMapping("/add")
-    public ResponseEntity<Object> createReservation(@RequestBody ReservationsRequest reservation) {
+    public ResponseEntity<Object> createReservation(@RequestBody ReservationsRequest reservation, Authentication authentication) {
+        boolean isUser = authentication.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals(Role.USER.name()));
+
+        if (isUser) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User user = userRepository.findByLogin(userDetails.getUsername());
+            if (user == null) {
+                return ResponseEntity.badRequest().body("User not found");
+            }
+            if (!user.getId().equals(reservation.getUserID())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only add reservations for yourself");
+            }
+        }
+
+        boolean isUserExists = userRepository.existsById(reservation.getUserID());
+        if (!isUserExists) {
+            return ResponseEntity.badRequest().body("User is not in the database");
+        }
+
         Date today = new Date();
         Date startDate = reservation.getStartDate();
         Date endDate = reservation.getEndDate();
@@ -46,17 +101,21 @@ public class ReservationsController {
             return ResponseEntity.badRequest().body("Start date cannot be before today");
         }
 
-        boolean is_free = roomRepository.getAvailabilityByRoomID(reservation.getRoom().getRoomID());
-        if(!is_free){
+        boolean isReservationExists = reservRepository.existsByUserIDAndEndDateGreaterThanEqualAndStartDateLessThanEqual(reservation.getUserID(), startDate, endDate);
+        if (isReservationExists) {
+            return ResponseEntity.badRequest().body("This reservation overlaps with an existing reservation for the same user");
+        }
+
+        boolean isRoomInHotel = roomRepository.existsByRoomIDAndHotel_HotelID(reservation.getRoom().getRoomID(), reservation.getHotel().getHotelID());
+        if (!isRoomInHotel) {
+            return ResponseEntity.badRequest().body("The specified room does not belong to the hotel");
+        }
+
+        boolean isFree = roomRepository.getAvailabilityByRoomID(reservation.getRoom().getRoomID());
+        if (!isFree) {
             return ResponseEntity.badRequest().body("This room is occupied");
         }
-    
-        boolean is_user = userRepository.existsById(reservation.getUserID());
-        if(!is_user){
-            return ResponseEntity.badRequest().body("User is not in database");
-        }
-    
-        roomRepository.setAvailabilityByRoomID(reservation.getRoom().getRoomID(),false);
+
         var reserv = Reservations.builder()
                 .hotel(reservation.getHotel())
                 .room(reservation.getRoom())
@@ -68,6 +127,7 @@ public class ReservationsController {
         reservRepository.save(reserv);
         return ResponseEntity.ok("Reservation added successfully");
     }
+
 
     @DeleteMapping("/delete/{reservID}")
     public ResponseEntity<String> deleteReserv(@PathVariable Integer reservID) {
@@ -81,7 +141,7 @@ public class ReservationsController {
 
     @PutMapping("/update/{reservID}")
     public ResponseEntity<String> updateReserv(@PathVariable("reservID") Integer reservID,
-                                              @RequestBody ReservationsRequest request) {
+                                               @RequestBody ReservationsRequest request) {
 
         Optional<Reservations> optional = reservRepository.findById(reservID);
         if (optional.isPresent()) {
@@ -91,18 +151,16 @@ public class ReservationsController {
             }
             if (request.getRoom() != null) {
                 boolean is_free = roomRepository.getAvailabilityByRoomID(request.getRoom().getRoomID());
-                if(!is_free){
+                if (!is_free) {
                     return ResponseEntity.badRequest().body("This room is occupied");
                 }
-
                 reserv.setRoom(request.getRoom());
             }
             if (request.getUserID() != null) {
                 boolean is_user = userRepository.existsById(request.getUserID());
-                if(!is_user){
+                if (!is_user) {
                     return ResponseEntity.badRequest().body("User is not in database");
                 }
-
                 reserv.setUserID(request.getUserID());
             }
 

@@ -12,10 +12,6 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Database: `siechoteli`
@@ -82,10 +78,18 @@ CREATE TABLE `reservations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `reservations`
+--
+
+INSERT INTO `reservations` (`reservationid`, `end_date`, `roomid`, `start_date`, `userid`, `hotelid`) VALUES
+(0, '2023-12-12 00:00:00.000000', 1, '2023-06-25 00:00:00.000000', 2, 2),
+(1, '2023-12-12 00:00:00.000000', 5, '2023-06-25 00:00:00.000000', 1, 2);
+
+--
 -- Wyzwalacze `reservations`
 --
 
-CREATE TRIGGER `tr_rezerwacje` AFTER DELETE ON `reservations` FOR EACH ROW INSERT INTO `Reservations_history` (id, start_date, end_date, userID, hotelID, roomID) VALUES (OLD.reservationid ,OLD.start_date, OLD.end_date, OLD.userid, OLD.hotelid, OLD.roomid);
+CREATE TRIGGER `tr_rezerwacje` AFTER DELETE ON `reservations` FOR EACH ROW INSERT INTO `Reservations_history` (reservationid, start_date, end_date, userID, hotelID, roomID) VALUES (OLD.reservationid ,OLD.start_date, OLD.end_date, OLD.userid, OLD.hotelid, OLD.roomid);
 
 -- --------------------------------------------------------
 
@@ -94,13 +98,12 @@ CREATE TRIGGER `tr_rezerwacje` AFTER DELETE ON `reservations` FOR EACH ROW INSER
 --
 
 CREATE TABLE `reservations_history` (
-  `id` int(11) NOT NULL,
+  `reservationid` int(11) NOT NULL,
   `start_date` datetime(6) NOT NULL,
   `end_date` datetime(6) NOT NULL,
   `userID` int(11) NOT NULL,
   `hotelID` int(11) NOT NULL,
-  `roomID` int(11) NOT NULL,
-  `reservationid` int(11) NOT NULL
+  `roomID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -227,8 +230,11 @@ ALTER TABLE `reservations`
 --
 -- Indeksy dla tabeli `reservations_history`
 --
+
+
 ALTER TABLE `reservations_history`
-  ADD KEY `FK29uk7dlocyj3pqyeytn0okuo6` (`hotelID`);
+  ADD PRIMARY KEY (`reservationid`),
+  ADD KEY `FK29uk7dlocyj3pqyeytn0okuo6` (`hotelid`);
 
 --
 -- Indeksy dla tabeli `room`
@@ -266,6 +272,3 @@ ALTER TABLE `room`
   ADD CONSTRAINT `FK7bt2oc7b3h1cqba9crblkx1c4` FOREIGN KEY (`hotelid`) REFERENCES `hotel` (`hotelid`);
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
+import java.util.List;
+
 @Repository
 public interface ReservRepository extends JpaRepository<Reservations,Integer> {
     @Transactional
@@ -14,4 +17,7 @@ public interface ReservRepository extends JpaRepository<Reservations,Integer> {
     @Query(value = "CALL delete_expired_reservations()", nativeQuery = true)
     void deleteExpiredReservations();
 
+    List<Reservations> findAllByUserID(Integer userId);
+
+    boolean existsByUserIDAndEndDateGreaterThanEqualAndStartDateLessThanEqual(Integer userID, Date startDate, Date endDate);
 }
